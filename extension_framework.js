@@ -1,5 +1,10 @@
 'use strict';
 game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
+    //custom
+    ui.sdom={
+        needRemove:[]
+    };
+    //custom end
     if (window.dui) {
         if (dui.isMobile()) {
             lib.init.css(""+lib.assetURL+"extension/太虚幻境","extension_MobileStyle");
@@ -2642,6 +2647,7 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
     game.consoledesk = function(){
         ui.arena.hide();
         var home = ui.create.div('.taixuhuanjing_Home2');
+        ui.sdom.desk=home;
         var season = lib.config.taixuhuanjing.season;
         var chapter = lib.config.taixuhuanjing.chapter;
         var exclusive;
@@ -3622,7 +3628,7 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
                         home.setBackgroundImage('extension/太虚幻境/dlc/'+lib.config.taixuhuanjing.season+'/chapter_'+lib.config.taixuhuanjing.chapter+'_'+node.exclusive+'.png');
                     }
                 } else {
-                    eventBox.appendChild(funcEvent(node,1),);
+                    eventBox.appendChild(funcEvent(node,1));
                 }
             }
             if(lib.config.taixuhuanjing.optional2 != null){
@@ -4606,41 +4612,7 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
             }
         } else if (effect.name=='randomSkill'||effect.name=='attack'||effect.name=='defense'||effect.name=='assist'||effect.name=='burst') {
             while(number--){
-                var skills = txhjPack.skillRank.slice(0);
-                var listm = get.character(lib.config.taixuhuanjing.name,3).slice(0);
-                var list = [];
-                if (effect.name=='randomSkill') {
-                    for (var i = 0; i < skills.length; i++) {
-                        if (!lib.config.taixuhuanjing.useSkills.contains(skills[i].skillID)&&!listm.contains(skills[i].skillID)) {
-                            list.push(skills[i]);
-                        }
-                    }
-                } else {
-                    for (var i = 0; i < skills.length; i++) {
-                        if (lib.config.taixuhuanjing.useSkills.contains(skills[i].skillID)&&listm.contains(skills[i].skillID)) continue;
-                        if (effect.name=='attack'&&skills[i].type.contains('攻击')) {
-                            list.push(skills[i]);
-                        } else if (effect.name=='defense'&&skills[i].type.contains('防御')) {
-                            list.push(skills[i]);
-                        } else if (effect.name=='assist'&&skills[i].type.contains('控制')) {
-                            list.push(skills[i]);
-                        } else if (effect.name=='burst'&&skills[i].type.contains('爆发')) {
-                            list.push(skills[i]);
-                        }
-                    }
-                }
-                if (list.length) {
-                    var skill = list.randomGet();
-                    if (lib.config.taixuhuanjing.useSkills.length<lib.config.taixuhuanjing.maxSkills) {
-                        lib.config.taixuhuanjing.useSkills.add(skill.skillID);
-                    } else if (!lib.config.taixuhuanjing.skills.contains(skill.skillID)) {
-                        lib.config.taixuhuanjing.skills.add(skill.skillID);
-                    }
-                    game.messagePopup('获得技能【'+get.translation(skill.skillID)+'】');
-                } else {
-                    game.messagePopup('无此类型技能可获得');
-                }
-                
+                game.selectFreeSkill();
             }
         } else if (effect.name=='buff') {
             if (!lib.config.taixuhuanjing.buff.contains(effect.result)){
@@ -5342,6 +5314,17 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
                 return info;
             })(),
             buttonbg:(function(){
+                    var checkHasSkill = function(result){
+                        let hasSkill = false;
+                        if (result.effect&&result.effect.length) {
+                            for (var i = 0; i < result.effect.length; i++) {
+                                if(result.effect[i].name == "randomSkill"){
+                                    hasSkill = true;
+                                }
+                            }
+                        }       
+                        return hasSkill;
+                     }
                 var buttonbg = ui.create.div('.taixuhuanjing_lookEventHomeBoxButtonbg');
                 function func2(result){
                     var button = ui.create.div('.taixuhuanjing_lookEventHomeBoxButton1');
@@ -5374,8 +5357,12 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
                                 }
                             }
                             view.update();
-                        } 
-                        home.delete();
+                        }
+                        if(!checkHasSkill(result)){ 
+                            home.delete();
+                        }else{
+                            ui.sdom.needRemove.push(home);
+                        }
                         lib.onresize.remove(reLookEventsize);
                         game.saveConfig('taixuhuanjing',lib.config.taixuhuanjing);
                         event.cancelBubble = true;
@@ -5741,6 +5728,125 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
             return false;
         });
     };
+    game.selectFreeSkill = function(node,view){
+        var home = ui.create.div('.taixuhuanjing_lookEventHome');
+        var reLookEventsize = function(){
+            setTimeout(setLookEventSize,500);
+        };
+        document.body.appendChild(home);
+        var homeBody = ui.create.div('.taixuhuanjing_lookEventHomeBody',home);
+        homeBody.addEventListener("click",function(){
+            event.cancelBubble = true;
+            event.returnValue = false; 
+            return false;
+        });
+        var setLookEventSize = function(){
+            var screenWidth = ui.window.offsetWidth;
+            var screenHeight = ui.window.offsetHeight;
+            var whr = 1.8;
+            var width;
+            var height;
+            if(screenWidth / whr > screenHeight){
+                height = screenHeight;
+                width = height * whr;
+            }else{
+                width = screenWidth;
+                height = screenWidth/whr;
+            }
+            homeBody.style.height = Math.round(height)+"px";
+            homeBody.style.width = Math.round(width)+"px";
+            homeBody.style.transform = 'translate(-50%,-50%) scale(0.7)';
+        };
+        setLookEventSize();
+        var box = ui.create.div('.taixuhuanjing_lookShopHomeBox',homeBody);
+       
+        var addSkill = function(skill){
+            var div = ui.create.div('.taixuhuanjing_lookShopHomeBoxCardDiv');
+            box.appendChild(div);
+            let name = get.translation(skill);
+            var rank = get.skillRank(skill);
+            if (rank==1) div.setBackgroundImage('extension/太虚幻境/image/style/goods_effect_common.png');
+            if (rank==2) div.setBackgroundImage('extension/太虚幻境/image/style/goods_effect_rare.png');
+            if (rank==3) div.setBackgroundImage('extension/太虚幻境/image/style/goods_effect_epic.png');
+            if (rank>=4) div.setBackgroundImage('extension/太虚幻境/image/style/goods_effect_legend.png');
+    
+            var divTitle= ui.create.div('.taixuhuanjing_CardStyleDivTitle','武将技',div);
+            var skillInfo = '&emsp;&emsp;'+lib.translate[skill+'_info'];
+            var skillTitle = ui.create.div('.taixuhuanjing_lookShopHomeBoxSkillTitle',div);
+            var skillName1 = ui.create.div('.taixuhuanjing_lookShopHomeBoxSkillName1',''+name+'',skillTitle);
+            var skillName2 = ui.create.div('.taixuhuanjing_lookShopHomeBoxSkillName2',''+name+'',skillTitle);
+            var skillText1 = ui.create.div('.taixuhuanjing_lookShopHomeBoxSkillText1',div);
+            var skillText2 = ui.create.div('.taixuhuanjing_lookShopHomeBoxSkillText2',''+skillInfo+'',skillText1);
+            lib.setScroll(skillText2);
+            skillText2.onmouseover = function() {
+                _status.onmousewheel = false;
+            };
+            skillText2.onmouseout = function() {
+                _status.onmousewheel = true;
+            };
+            div.listen(function(e){
+                game.txhj_playAudioCall('WinButton',null,true);
+                var str = '是否选择技能【'+name+'】？';
+                game.purchasePrompt('选择技能',str,homeBody,function(value){
+                    if (value) {
+                        if (lib.config.taixuhuanjing.useSkills.length<lib.config.taixuhuanjing.maxSkills) {
+                            lib.config.taixuhuanjing.useSkills.add(skill);
+                        } else if (!lib.config.taixuhuanjing.skills.contains(skill)) {
+                            lib.config.taixuhuanjing.skills.add(skill);
+                        }
+                        game.saveConfig('taixuhuanjing',lib.config.taixuhuanjing);
+                        game.messagePopup('获取技能【'+name+'】成功');
+                        home.delete();
+                        for(var i =0;i<ui.sdom.needRemove.length;i++){
+                            ui.sdom.needRemove[i].delete();
+                        }
+                        ui.sdom.desk.update();
+                        lib.onresize.remove(reLookEventsize);
+                    }          
+                });
+
+                event.cancelBubble = true;
+                event.returnValue = false; 
+                return false;    
+            });
+            return div;
+        }
+        var skills = txhjPack.skillRank.slice(0);
+        var skillDiv = [];
+        var refreshSkill = function(){
+            var listm = [];
+            var i =0;
+            while(i < 3){
+                var random = Math.round(Math.random()*skills.length);
+                var skill = skills[random];
+                if (!lib.config.taixuhuanjing.useSkills.contains(skill.skillID)&&!listm.contains(skill.skillID)) {
+                    i++;
+                    listm.add(skill.skillID);
+                    skillDiv.push(addSkill(skill.skillID));
+                }
+            }
+        }
+        refreshSkill();
+        let i = 0;
+        var refreshBtn = ui.create.div('.taixuhuanjing_StateHomeBoxButton2','刷新',box);
+        refreshBtn.listen(function(){
+            if(i >=3){
+                game.messagePopup('刷新次数已用完');
+                return;
+            }
+            while(skillDiv.length){
+                skillDiv.shift().delete();
+            }
+            i++;
+            game.messagePopup('还能刷新'+(3-i)+'次');
+            refreshSkill();
+        });
+        homeBody.addEventListener("click",function(){
+            event.cancelBubble = true;
+            event.returnValue = false; 
+            return false;
+        });
+    }
     game.lookStore = function (node,view) {
         var home = ui.create.div('.taixuhuanjing_lookEventHome');
         document.body.appendChild(home);
@@ -7116,9 +7222,10 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
                 var skillName = get.translation(skill.skillID);
                 var skillInfo = lib.translate[skill.skillID+'_info'];
                 var divSkill = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkill',div);
-                var divSkillNameShadow = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillNameShadow',''+skillName+'',divSkill);
-                var divSkillName = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillName',''+skillName+'',divSkill);
-                var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo2',''+skillInfo+'',div);
+                var divSkillNameShadow = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillNameShadow','随机技能',divSkill);
+                div.listen(function(){
+                    game.selectFreeSkill();
+                });
             } else if (spoil.type=='randomCard') {
                 var list = [];
                 var cards = txhjPack.cardPack.slice(0);

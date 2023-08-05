@@ -9,7 +9,7 @@ game.import('太虚幻境',function (lib, game, ui, get, ai, _status) {
 			'txhj_tonghu':["male","qun",4,['wushuang','mengjin'],["forbidai"]],
 			'txhj_huanxiangbingnv':["female","qun",2,['mashu'],["forbidai"]],
 			'txhj_huanxiangbingnan':["male","qun",2,['mashu'],["forbidai"]],
-			'txhj_shouhudizi':["male","qun"s,3,['zhidao'],["forbidai"]],
+			'txhj_shouhudizi':["male","qun",3,['zhidao'],["forbidai"]],
 			'txhj_lingjitongren':["female","qun",'4/6',['txhj_daiyuan'],["forbidai"]],
 			'txhj_fuguangtongren':["female","qun",'4/5',['txhj_daiyuan'],["forbidai"]],
 			'txhj_shenjunbaima':["female","qun",3,['qiaomeng','yicong'],["forbidai"]],

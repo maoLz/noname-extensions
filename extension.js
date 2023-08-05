@@ -1660,7 +1660,7 @@ game.import("extension", function (lib, game, ui, get, ai, _status) {
                             content: function () {
                                 "step 0"
                                 var list = player.storage.txhj_zhuhun_die;
-                                player.chooseButton(ui.create.dialog('选择一名已阵亡的同阵营角色令其复活为【长怨尸兵】',list,), function (button) {
+                                player.chooseButton(ui.create.dialog('选择一名已阵亡的同阵营角色令其复活为【长怨尸兵】',list,null), function (button) {
                                     return ai.get.attitude(_status.event.player);
                                 });
                                 "step 1"

@@ -1412,7 +1412,7 @@ game.import('card',function(lib,game,ui,get,ai,_status){
                     cardUsable:function(card,player,num){
             var cardx=player.getEquip('txhj_zhuge');
             if(card.name=='sha'&&(!cardx||player.hasSkill('txhj_zhuge',null,false)||(!_status.rw_zhuge_temp&&!ui.selected.cards.contains(cardx)))){
-                return 4;
+                return num+1;
             }
         },
                     "cardEnabled2":function(card,player){
@@ -1798,7 +1798,7 @@ game.import('card',function(lib,game,ui,get,ai,_status){
             "txhj_qilingong":"麒麟弓",
             "txhj_qilingong_info":"当你使用【杀】对目标角色造成伤害时，你可以弃置其装备区里的一张宝物牌。",
              "txhj_zhuge":"诸葛连弩",
-            "txhj_zhuge_info":"锁定技，你使用【杀】的次数+3。",
+            "txhj_zhuge_info":"锁定技，你使用【杀】的次数+1。",
         
         
         },

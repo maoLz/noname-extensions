@@ -2344,6 +2344,29 @@
   -webkit-transition: all 0.2s;
 }
 
+.taixuhuanjing_StateHomeBoxButton2 {
+  position: absolute;
+  width: 32%;
+  height: 15%;
+  left: 40%;
+  top: 105%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: justify;
+  white-space: nowrap;
+  font-size: 2.5vw;
+  color: #fff;
+  font-family: shoushaFan;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: url(../../extension/太虚幻境/image/icon/icon_Button7.png);
+  -webkit-transition: all 0.2s;
+}
+
+
 #taixuhuanjing_adjustHome {
   position: absolute;
   width: 1920px;
