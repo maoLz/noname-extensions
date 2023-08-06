@@ -283,7 +283,7 @@ game.import('太虚幻境',function (lib, game, ui, get, ai, _status) {
                                 {
                                   result:true,
                                   name:'随机装备',
-                                  effect:[{name:'equip',number:1,result:'zhuge'}],
+                                  effect:[{name:'equip',number:1,result:'txhj_zhuge'}],
                                   random:1,
                                 },
                             ],

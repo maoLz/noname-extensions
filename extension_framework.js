@@ -4,6 +4,7 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
     ui.sdom={
         needRemove:[]
     };
+    var buffSkill = ['retieji','jueqing','new_meibu','enyuan','yifa'];
     //custom end
     if (window.dui) {
         if (dui.isMobile()) {
@@ -1830,12 +1831,6 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
             /*群*/
             'lvbu','dongzhuo','zhangbao','xin_liru','re_zhangjiao','re_lvbu','guotufengji','quyi','zhangrang','liuyan','re_zhangliang','xuyou','sp_liuqi','lijue','guosi','xurong','zhangji','fanchou','re_zhurong','re_dongzhuo','zhangxiu','yj_xuhuang','ol_yujin','re_liru','yj_ganning',
         ];
-        for (var i = 0; i < list2.length; i++) {
-            if (lib.config.taixuhuanjingNode&&lib.config.taixuhuanjingNode.use&&lib.config.taixuhuanjingNode.use[list2[i]]) {
-                list.common.push(list2[i]);
-                list.common2.push(list2[i]);
-            }
-        }
         for(var p in lib.characterPack){
             var old = ['standard','refresh','shenhua','xinghuoliaoyuan','yijiang','sp','yingbian','sp2','extra','mobile','sb','offline','tw','clan'];
             if(!old.contains(p)) continue;
@@ -1850,7 +1845,6 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
                     list[lib.character[i][1]+'2'].push(i);
                     if (lib.config.taixuhuanjingNode&&lib.config.taixuhuanjingNode.use&&lib.config.taixuhuanjingNode.use[i]) {
                         list.common.push(i);
-                        list.common2.push(i);
                     }
                 }
             }
@@ -5710,6 +5704,14 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
             _status.TaiXuHuanJingGame.cards = lib.config.taixuhuanjing.cards;
             _status.TaiXuHuanJingGame.skills = lib.config.taixuhuanjing.useSkills;
             _status.gameStart=undefined;
+
+            var buffEnemy = function(enemyList){
+                let i = 0;
+                while(i < enemyList.length){
+                    enemyList[i++].skills.push(buffSkill.randomGet());
+                }
+            }
+            buffEnemy(_status.TaiXuHuanJingGame.enemy);
             game.delay(100);
             game.txhj_playAudioCall('QuickStart',null,true);
             home.delete();
@@ -5830,15 +5832,14 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
         let i = 0;
         var refreshBtn = ui.create.div('.taixuhuanjing_StateHomeBoxButton2','刷新',box);
         refreshBtn.listen(function(){
-            if(i >=3){
-                game.messagePopup('刷新次数已用完');
+            if(i >=1){
                 return;
             }
             while(skillDiv.length){
                 skillDiv.shift().delete();
             }
             i++;
-            game.messagePopup('还能刷新'+(3-i)+'次');
+            refreshBtn.delete();
             refreshSkill();
         });
         homeBody.addEventListener("click",function(){
@@ -7200,31 +7201,14 @@ game.import("太虚幻境", function (lib, game, ui, get, ai, _status) {
             var divName = ui.create.div('.taixuhuanjing_StateHomeBoxDivName',''+name+'',div);
 
             if (spoil.type=='randomSkill') {
-                var skills = txhjPack.skillRank.slice(0);
-                var listm = get.character(lib.config.taixuhuanjing.name,3).slice(0);
-                for (var i = 0; i < skills.length; i++) {
-                    var skillID = skills[i].skillID;
-                    if (!skillID) {
-                        delete skills[i];
-                    }
-                    if (lib.config.taixuhuanjing.useSkills.contains(skillID)) {
-                        delete skills[i];
-                    } else if (listm.contains(skillID)) {
-                        delete skills[i];
-                    }
-                }
-                var skill = skills.randomGet();
-                div.choice = {
-                    return:true,
-                    name:'技能',
-                    effect:[{name:'skill',number:1,result:skill.skillID}],
-                }
-                var skillName = get.translation(skill.skillID);
-                var skillInfo = lib.translate[skill.skillID+'_info'];
                 var divSkill = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkill',div);
                 var divSkillNameShadow = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillNameShadow','随机技能',divSkill);
                 div.listen(function(){
                     game.selectFreeSkill();
+                    view.update([]);
+                    view.removeChild(homeBody);
+                    event.cancelBubble = true;
+                    event.returnValue = false; 
                 });
             } else if (spoil.type=='randomCard') {
                 var list = [];
